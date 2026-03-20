@@ -61,4 +61,12 @@ public class UserController {
     public User withdraw(@RequestParam Long userId, @RequestParam double amount) {
         return bankService.withdraw(userId, amount);
     }
+
+    @PostMapping("/transfer")
+    public String transfer(@RequestParam Long fromUserId,
+                           @RequestParam Long toUserId,
+                           @RequestParam double amount) {
+        return bankService.transfer(fromUserId, toUserId, amount);
+    }
+
 }

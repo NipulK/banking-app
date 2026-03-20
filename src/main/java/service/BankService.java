@@ -56,4 +56,25 @@ public class BankService {
 
         return user;
     }
+
+    public String transfer(Long fromUserId, Long toUserId, double amount) {
+
+        User fromUser = userRepository.findById(fromUserId).orElseThrow();
+        User toUser = userRepository.findById(toUserId).orElseThrow();
+
+        if (fromUser.getBalance() < amount) {
+            return "Insufficient balance";
+        }
+
+        // Deduct from sender
+        fromUser.setBalance(fromUser.getBalance() - amount);
+
+        // Add to receiver
+        toUser.setBalance(toUser.getBalance() + amount);
+
+        userRepository.save(fromUser);
+        userRepository.save(toUser);
+
+        return "Transfer successful";
+    }
 }
