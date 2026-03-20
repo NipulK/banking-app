@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Banking App</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f4f6f8;
+            text-align: center;
+        }
+
+        .container {
+            width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            margin-top: 50px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        h2 {
+            margin-top: 20px;
+        }
+
+        #balance {
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🏦 Banking App</h1>
+
+    <h2>Login</h2>
+    <input type="text" id="email" placeholder="Email"><br>
+    <input type="password" id="password" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+
+    <p id="loginStatus"></p>
+
+    <h3 id="balance"></h3>
+
+    <h2>Deposit</h2>
+    <input type="number" id="depositAmount" placeholder="Amount">
+    <button onclick="deposit()">Deposit</button>
+
+    <h2>Withdraw</h2>
+    <input type="number" id="withdrawAmount" placeholder="Amount">
+    <button onclick="withdraw()">Withdraw</button>
+
+    <h2>Transfer</h2>
+    <input type="number" id="toUserId" placeholder="To User ID">
+    <input type="number" id="transferAmount" placeholder="Amount">
+    <button onclick="transfer()">Transfer</button>
+
+</div>
+
+<script>
+
+    let userId = null; // ✅ dynamic user
+
+    function login() {
+    fetch('/api/users/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value
+        })
+    })
+    .then(res => res.json())
+    .then(user => {
+
+        if (!user) {
+            document.getElementById("loginStatus").innerText = "Login failed";
+            return;
+        }
+
+        // ✅ store real userId
+        userId = user.id;
+
+        document.getElementById("loginStatus").innerText = "Login successful";
+
+        // ✅ show balance
+        document.getElementById("balance").innerText =
+            "Balance: " + user.balance;
+    });
+}
+
+    function loadBalance() {
+        fetch(`/api/users`)
+        .then(res => res.json())
+        .then(users => {
+            let user = users.find(u => u.id === userId);
+            document.getElementById("balance").innerText =
+                "Balance: " + user.balance;
+        });
+    }
+
+    function deposit() {
+        let amount = document.getElementById("depositAmount").value;
+
+        fetch(`/api/users/deposit?userId=${userId}&amount=${amount}`, {
+            method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("balance").innerText =
+                "Balance: " + data.balance;
+        });
+    }
+
+    function withdraw() {
+        let amount = document.getElementById("withdrawAmount").value;
+
+        fetch(`/api/users/withdraw?userId=${userId}&amount=${amount}`, {
+            method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("balance").innerText =
+                "Balance: " + data.balance;
+        });
+    }
+
+    function transfer() {
+        let toUserId = document.getElementById("toUserId").value;
+        let amount = document.getElementById("transferAmount").value;
+
+        fetch(`/api/users/transfer?fromUserId=${userId}&toUserId=${toUserId}&amount=${amount}`, {
+            method: 'POST'
+        })
+        .then(res => res.text())
+        .then(data => {
+            alert(data);
+            loadBalance();
+        });
+    }
+
+</script>
+
+</body>
+</html>

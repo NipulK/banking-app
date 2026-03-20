@@ -12,24 +12,19 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @PostMapping("/login")
-    public String login(@RequestBody User user) {
-
-        System.out.println("EMAIL: " + user.getEmail());
-        System.out.println("PASSWORD: " + user.getPassword());
+    public User login(@RequestBody User user) {
 
         User existingUser = userRepository.findByEmail(user.getEmail());
 
-        System.out.println("FOUND USER: " + existingUser);
-
         if (existingUser == null) {
-            return "User not found";
+            return null;
         }
 
         if (!existingUser.getPassword().equals(user.getPassword())) {
-            return "Invalid password";
+            return null;
         }
 
-        return "Login successful";
+        return existingUser;
     }
 
     @Autowired
